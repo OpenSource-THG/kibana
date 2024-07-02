@@ -7,9 +7,10 @@
  */
 
 import { join } from 'path';
-import { accessSync, constants } from 'fs';
+import { accessSync, constants, readFileSync } from 'fs';
 import { TypeOf, schema } from '@kbn/config-schema';
 import { REPO_ROOT } from '@kbn/repo-info';
+import { getConfigFromFiles } from '@kbn/config';
 
 const isString = (v: any): v is string => typeof v === 'string';
 
@@ -57,7 +58,15 @@ export const getConfigDirectory = () => findFile(CONFIG_DIRECTORIES);
  * Get the directory containing runtime data
  * @internal
  */
-export const getDataPath = () => findFile(DATA_PATHS);
+ export const getDataPath = () => {
+  // Use the KIBANA_DATA_PATH environment variable if it is set
+  if (process.env.KIBANA_DATA_PATH) {
+    return process.env.KIBANA_DATA_PATH;
+  }
+  
+  // Fallback to predefined data paths if the environment variable is not set
+  return findFile(DATA_PATHS);
+};
 
 /**
  * Get the directory containing logs
